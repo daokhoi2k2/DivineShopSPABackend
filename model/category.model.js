@@ -1,7 +1,7 @@
-const category = require("../schema/category.schema");
+const Category = require("../schema/category.schema");
 
 module.exports = {
     getAllCategories: async () => {
-        return category.find();
+        return Category.find();
     }
 }
