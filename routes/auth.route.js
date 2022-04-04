@@ -11,5 +11,6 @@ router
     .post("/login", controller.loginUser)
     .post("/refresh", controller.refreshToken)
     .post("/logout", middlewareController.verifyToken, controller.logout)
+    .post("/getCurrentUserInfo", middlewareController.verifyToken, controller.getCurrentUserInfo)
 
 module.exports = router;

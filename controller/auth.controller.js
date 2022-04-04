@@ -11,7 +11,7 @@ const authController = {
         role: user.role,
       },
       process.env.JWT_ACCESS_KEY,
-      { expiresIn: "30s" }
+      { expiresIn: "30m" }
     );
   },
 
@@ -52,7 +52,7 @@ const authController = {
   // Login
   loginUser: async (req, res) => {
     try {
-      const user = await userModel.findUserByEmailOrUsername(req.body.email || req.body.username);
+      const user = await userModel.findUserByEmailOrUsername(req.body.account);
 
       // Check user is exist
       if (!user)
@@ -72,16 +72,22 @@ const authController = {
       if (user && validPassword) {
         const accessToken = authController.generateAccessToken(user);
         const refreshToken = authController.generateRefreshToken(user);
-        res.cookie("refreshToken", refreshToken, {
-          httpOnly: true, // không thể dùng document.cookie
-          // path: "/",
-          // sameSite: "strict",
-          // secure: false, // cookie chỉ được gửi qua https
-        });
+        // res.cookie("refreshToken", refreshToken, {
+        //   // httpOnly: true, // không thể dùng document.cookie
+        //   // path: "/",
+        //   // sameSite: "strict",
+        //   // secure: false, // cookie chỉ được gửi qua https
+        // });
+        // res.cookie("accessToken", accessToken, {
+        //   // httpOnly: true, // không thể dùng document.cookie
+        //   // path: "/",
+        //   // sameSite: "strict",
+        //   // secure: false, // cookie chỉ được gửi qua https
+        // });
 
         // Remove password inside the user object
         const { password, ...userInfo } = user._doc;
-        return res.status(200).json({ userInfo, accessToken });
+        return res.status(200).json({ userInfo, accessToken, refreshToken });
       }
 
       return res.status(404).json({
@@ -94,7 +100,8 @@ const authController = {
   },
 
   refreshToken: (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.headers.refreshtoken;
+    console.log("RF", refreshToken)
 
     if (!refreshToken) return res.status(401).json("You're not authenticated");
 
@@ -105,20 +112,33 @@ const authController = {
       const newAccessToken = authController.generateAccessToken(user);
       const newRefreshToken = authController.generateRefreshToken(user);
 
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true, // không thể dùng document.cookie
-        // path: "/",
-        // sameSite: "strict",
-        // secure: false, // cookie chỉ được gửi qua https
-      });
+      // res.cookie("refreshToken", newRefreshToken, {
+      //   // httpOnly: true, // không thể dùng document.cookie
+      //   // path: "/",
+      //   // sameSite: "strict",
+      //   // secure: false, // cookie chỉ được gửi qua https
+      // });
+      // res.cookie("accessToken", newAccessToken, {
+      //   // httpOnly: true, // không thể dùng document.cookie
+      //   // path: "/",
+      //   // sameSite: "strict",
+      //   // secure: false, // cookie chỉ được gửi qua https
+      // });
 
-      return res.status(200).json({ accessToken: newAccessToken });
+      return res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
     });
   },
   logout: (req, res) => {
     res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
     res.status(200).json("Logged out !");
   },
+
+  getCurrentUserInfo: async (req, res) => {
+    const result = await userModel.findUserById(req.user._id);
+    const { password, ...userInfo} = result._doc;
+    res.status(200).json(userInfo)
+  }
 };
 
 module.exports = authController;
