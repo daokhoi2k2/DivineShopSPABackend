@@ -11,7 +11,7 @@ const authController = {
         role: user.role,
       },
       process.env.JWT_ACCESS_KEY,
-      { expiresIn: "30m" }
+      { expiresIn: "30s" }
     );
   },
 
@@ -72,22 +72,16 @@ const authController = {
       if (user && validPassword) {
         const accessToken = authController.generateAccessToken(user);
         const refreshToken = authController.generateRefreshToken(user);
-        // res.cookie("refreshToken", refreshToken, {
-        //   // httpOnly: true, // không thể dùng document.cookie
-        //   // path: "/",
-        //   // sameSite: "strict",
-        //   // secure: false, // cookie chỉ được gửi qua https
-        // });
-        // res.cookie("accessToken", accessToken, {
-        //   // httpOnly: true, // không thể dùng document.cookie
-        //   // path: "/",
-        //   // sameSite: "strict",
-        //   // secure: false, // cookie chỉ được gửi qua https
-        // });
-
+        res.cookie("refreshToken", refreshToken, {
+          // httpOnly: true, // không thể dùng document.cookie
+          // path: "/",
+          // sameSite: "strict",
+          // secure: false, // cookie chỉ được gửi qua https
+        });
+        
         // Remove password inside the user object
         const { password, ...userInfo } = user._doc;
-        return res.status(200).json({ userInfo, accessToken, refreshToken });
+        return res.status(200).json({ userInfo, accessToken });
       }
 
       return res.status(404).json({
@@ -100,8 +94,7 @@ const authController = {
   },
 
   refreshToken: (req, res) => {
-    const refreshToken = req.headers.refreshtoken;
-    console.log("RF", refreshToken)
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) return res.status(401).json("You're not authenticated");
 
@@ -112,25 +105,21 @@ const authController = {
       const newAccessToken = authController.generateAccessToken(user);
       const newRefreshToken = authController.generateRefreshToken(user);
 
-      // res.cookie("refreshToken", newRefreshToken, {
-      //   // httpOnly: true, // không thể dùng document.cookie
-      //   // path: "/",
-      //   // sameSite: "strict",
-      //   // secure: false, // cookie chỉ được gửi qua https
-      // });
-      // res.cookie("accessToken", newAccessToken, {
-      //   // httpOnly: true, // không thể dùng document.cookie
-      //   // path: "/",
-      //   // sameSite: "strict",
-      //   // secure: false, // cookie chỉ được gửi qua https
-      // });
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true, // không thể dùng document.cookie
+        // path: "/",
+        // sameSite: "strict",
+        // secure: false, // cookie chỉ được gửi qua https
+      });
 
-      return res.status(200).json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      return res.status(200).json({ accessToken: newAccessToken });
     });
   },
   logout: (req, res) => {
+    // Thường ta sẽ lưu refreshToken ở 1 database và sẽ blacklist nó khi
+    // logout để tránh người ta lấy refreshToken đó đăng nhập khi đăng xuất
     res.clearCookie("refreshToken");
-    res.clearCookie("accessToken");
+    // res.clearCookie("accessToken");
     res.status(200).json("Logged out !");
   },
 
