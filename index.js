@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 4000;
 
 dotenv.config();
 app.use(morgan("common"));
-app.use(cors({credentials: true, origin: 'https://divineshopclonespa.netlify.app/'}));
+app.use(cors({credentials: true, origin: 'https://divineshopclonespa.netlify.app'}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded());
