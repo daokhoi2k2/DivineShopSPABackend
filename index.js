@@ -7,7 +7,7 @@ const cors = require("cors");
 const apiRoute = require("./routes/api.route");
 const authRoute = require("./routes/auth.route");
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 dotenv.config();
 app.use(morgan("common"));
