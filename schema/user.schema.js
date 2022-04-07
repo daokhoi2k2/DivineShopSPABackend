@@ -21,7 +21,10 @@ const userSchema = new mongoose.Schema(
     },
     fullName: String,
     phoneNumber: String,
-    vip: Number,
+    membership: {
+      type: Number,
+      default: 0
+    },
     balance: {
       type: Number,
       default: 0,
@@ -37,16 +40,16 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     sex: {
-      type: Boolean,
+      type: String,
     },
     city: {
-      type: Number,
+      type: String,
     },
-    disctrict: {
-      type: Number,
+    district: {
+      type: String,
     },
     ward: {
-      type: Number,
+      type: String,
     },
     address: {
       type: String,

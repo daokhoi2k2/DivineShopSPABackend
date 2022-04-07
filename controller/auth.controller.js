@@ -11,7 +11,7 @@ const authController = {
         role: user.role,
       },
       process.env.JWT_ACCESS_KEY,
-      { expiresIn: "30s" }
+      { expiresIn: "1d" }
     );
   },
 
@@ -25,28 +25,6 @@ const authController = {
       process.env.JWT_REFRESH_KEY,
       { expiresIn: "1d" }
     );
-  },
-
-  register: async (req, res) => {
-    try {
-      const salt = await bcrypt.genSalt();
-
-      const hashed = await bcrypt.hash(req.body.password, salt);
-      // Create new user
-      const newUser = {
-        username: req.body.username,
-        email: req.body.email,
-        password: hashed,
-      };
-
-      await userModel.createUser(newUser);
-
-      res.status(200).json({
-        msg: "created successfully",
-      });
-    } catch (err) {
-      res.status(500).json(err);
-    }
   },
 
   // Login

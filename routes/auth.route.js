@@ -7,7 +7,6 @@ router.get("/", (req, res) => {
 })
 
 router
-    .post("/register", controller.register)
     .post("/login", controller.loginUser)
     .post("/refresh", controller.refreshToken)
     .post("/logout", middlewareController.verifyToken, controller.logout)

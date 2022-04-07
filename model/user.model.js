@@ -15,5 +15,8 @@ module.exports = {
     },
     deleteUserById: (id) => {
         return User.findByIdAndDelete(id);
+    },
+    findAndupdateById: (id, data) => {
+        return User.findByIdAndUpdate(id, data);
     }
 }
