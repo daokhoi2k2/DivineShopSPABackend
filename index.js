@@ -15,6 +15,7 @@ app.use(cors({credentials: true, origin: process.env.ORIGIN_URL}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(express.static("uploads"));
 
 
 

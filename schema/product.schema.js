@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema({
     default: 0,
   },
   status: {
-    tpye: Number,
+    type: Boolean,
     required: true,
   },
   amount: {
@@ -33,6 +33,6 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-let District = mongoose.model("product", productSchema, "product");
+let Product = mongoose.model("product", productSchema, "product");
 
-module.exports = District;
+module.exports = Product;
