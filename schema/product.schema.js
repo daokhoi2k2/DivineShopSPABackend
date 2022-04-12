@@ -5,6 +5,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  name_url: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   price: {
     type: Number,
     required: true,
@@ -31,6 +36,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  categoryId: {
+    type: String,
+    ref: "category"
+  }
 });
 
 let Product = mongoose.model("product", productSchema, "product");

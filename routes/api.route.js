@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' });
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 const controller = require("../controller/api.controller");
 const userController = require("../controller/user.controller");
@@ -13,8 +13,20 @@ router.get("/", controller.index);
 
 // Product
 router
-  .get("/product", middlewareController.verifyTokenAndAdminAuth, productController.getAllProducts)
-  .post("/product", middlewareController.verifyTokenAndAdminAuth, upload.single('thumb_nail'), productController.addProduct);
+  .get("/product", productController.getAllProducts)
+  .post(
+    "/product",
+    middlewareController.verifyTokenAndAdminAuth,
+    upload.single("thumb_nail"),
+    productController.addProduct
+  )
+  .put(
+    "/product",
+    // middlewareController.verifyTokenAndAdminAuth,
+    upload.single("thumb_nail"),
+    productController.updateProduct
+  )
+  .delete("/product/:_id", productController.deleteProduct)
 
 // Category
 router.get("/category", categoryController.getAllCategories);
