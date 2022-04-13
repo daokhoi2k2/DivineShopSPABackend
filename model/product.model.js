@@ -4,6 +4,12 @@ module.exports = {
     getAllProducts: async () => {
         return Product.find();
     },
+    getProductsList: (limit, skip) => {
+        return Product.find().limit(limit).skip(skip);
+    },
+    getProductByHashName: async (name_url) => {
+        return Product.findOne({name_url}).populate("categoryId")
+    },
     addProduct: async (newProduct) => {
         return Product.create(newProduct)
         // console.log(newProduct)

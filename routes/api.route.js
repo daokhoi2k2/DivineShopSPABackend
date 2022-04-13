@@ -13,7 +13,8 @@ router.get("/", controller.index);
 
 // Product
 router
-  .get("/product", productController.getAllProducts)
+  .get("/product", middlewareController.verifyTokenAndAdminAuth, productController.getAllProducts)
+  .get("/product/list", productController.getProductsList)
   .post(
     "/product",
     middlewareController.verifyTokenAndAdminAuth,
@@ -22,11 +23,12 @@ router
   )
   .put(
     "/product",
-    // middlewareController.verifyTokenAndAdminAuth,
+    middlewareController.verifyTokenAndAdminAuth,
     upload.single("thumb_nail"),
     productController.updateProduct
   )
-  .delete("/product/:_id", productController.deleteProduct)
+  .get("/product/hash_name/:hash_name", productController.getProductByHashName)
+  .delete("/product/:_id", productController.deleteProduct);
 
 // Category
 router.get("/category", categoryController.getAllCategories);

@@ -5,6 +5,27 @@ module.exports = {
 
     res.status(200).json(response);
   },
+  getProductsList: async (req, res) => {
+    try {
+      const { page, limit } = req.query;
+      const skip = (page - 1) * limit;
+      const response = await productModel.getProductsList(limit, skip);
+
+      res.status(200).json(response);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  },
+  getProductByHashName: async (req, res) => {
+    try {
+      const hash_name = req.params.hash_name;
+      const response = await productModel.getProductByHashName(hash_name);
+
+      res.status(200).json(response);
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  },
   addProduct: async (req, res) => {
     const thumb_nail = req.file;
     const newProduct = {
@@ -45,11 +66,11 @@ module.exports = {
         return res.status(200).json(response);
       }
     } catch (err) {
-      if(err.codeName === "DuplicateKey") {
+      if (err.codeName === "DuplicateKey") {
         return res.status(400).json({
-          "duplicateKeys": err.keyPattern
-        })
-      } 
+          duplicateKeys: err.keyPattern,
+        });
+      }
 
       res.status(400).json(err);
     }
