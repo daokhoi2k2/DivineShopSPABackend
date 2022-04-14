@@ -7,14 +7,52 @@ module.exports = {
   },
   getProductsList: async (req, res) => {
     try {
-      const { page, limit } = req.query;
+      const { page, limit, ...filter } = req.query;
+      const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort } = filter;
+
       const skip = (page - 1) * limit;
-      const response = await productModel.getProductsList(limit, skip);
+      const filterQuery = {};
+      categoryId && (filterQuery.categoryId = categoryId);
+      priceFrom && (filterQuery.price_promotion = { $gte: priceFrom });
+      priceTo && (filterQuery.price_promotion = { ...filterQuery.price_promotion, $lte: priceTo });
+
+      sort &&
+        (() => {
+          switch (sort) {
+            case "sales-desc":
+              filterQuery.sort = { quantity_sold: -1 };
+              break;
+            case "date-desc":
+              filterQuery.sort = { created_at: -1 };
+              break;
+            case "price-asc":
+              filterQuery.sort = { price_promotion: 1 };
+              break;
+            case "price-desc":
+              filterQuery.sort = { price_promotion: -1 };
+              break;
+            case "name-asc":
+              filterQuery.sort = { name: 1 };
+              break;
+            case "name-desc":
+              filterQuery.sort = { name: -1 };
+              break;
+            default:
+              filterQuery.sort = {};
+              break;
+          }
+        })();
+
+      const response = await productModel.getProductsList(limit, skip, filterQuery);
 
       res.status(200).json(response);
     } catch (err) {
+      console.log(err);
       res.status(400).json(err);
     }
+  },
+  getProductFilter: async (req, res) => {
+    res.send("ccc");
   },
   getProductByHashName: async (req, res) => {
     try {
@@ -39,7 +77,6 @@ module.exports = {
   },
   deleteProduct: async (req, res) => {
     const _id = req.params._id;
-    console.log(_id);
 
     const response = await productModel.deleteProduct(_id);
 
