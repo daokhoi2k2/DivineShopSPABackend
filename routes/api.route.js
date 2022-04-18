@@ -7,6 +7,7 @@ const userController = require("../controller/user.controller");
 const categoryController = require("../controller/category.controller");
 const productController = require("../controller/product.controller");
 const locationController = require("../controller/location.controller");
+const orderController = require("../controller/order.controller");
 const middlewareController = require("../controller/middleware.controller");
 
 router.get("/", controller.index);
@@ -41,9 +42,15 @@ router
   .get("/user/:id", userController.getUserById)
   .delete("/user/:id", userController.deleteUserById);
 
+// Location
 router
   .get("/location", middlewareController.verifyToken, locationController.city)
   .get("/location/:city", middlewareController.verifyToken, locationController.district)
   .get("/location/ward/:district", middlewareController.verifyToken, locationController.ward);
+
+// Order
+router
+  .get("/order", orderController.getAllOrders)
+  .post("/order", orderController.addOrder)
 
 module.exports = router;
