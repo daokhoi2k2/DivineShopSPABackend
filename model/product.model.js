@@ -1,4 +1,3 @@
-const { query } = require("express");
 const Product = require("../schema/product.schema");
 
 module.exports = {
@@ -15,6 +14,19 @@ module.exports = {
   },
   getProductByHashName: async (name_url) => {
     return Product.findOne({ name_url }).populate("categoryId");
+  },
+  getProductsArray: async (array) => {
+    return Product.find(
+      {
+        _id: {
+          $in: array,
+        },
+      },
+      {
+        description: 0,
+        quantity_sold: 0,
+      }
+    );
   },
   addProduct: async (newProduct) => {
     return Product.create(newProduct);

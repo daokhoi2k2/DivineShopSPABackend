@@ -37,10 +37,11 @@ router.get("/category", categoryController.getAllCategories);
 // User
 router
   .post("/user/register", userController.register)
+  .get("/user/order", middlewareController.verifyToken, orderController.getOrderUser)
   .post("/user/:id", userController.updateUserById)
   .get("/user", middlewareController.verifyTokenAndAdminAuth, userController.getAllUser)
   .get("/user/:id", userController.getUserById)
-  .delete("/user/:id", userController.deleteUserById);
+  .delete("/user/:id", userController.deleteUserById)
 
 // Location
 router
@@ -51,6 +52,7 @@ router
 // Order
 router
   .get("/order", orderController.getAllOrders)
+  .get("/order/:id", orderController.getOrderById)
   .post("/order", orderController.addOrder)
 
 module.exports = router;

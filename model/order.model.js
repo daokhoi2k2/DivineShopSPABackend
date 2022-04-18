@@ -5,6 +5,19 @@ module.exports = {
   getAllOrders: async () => {
     return Order.find();
   },
+  getOrderUser: async (email, limit, skip, filterQuery) => {
+    return Order.find({
+      ...filterQuery,
+      email,
+    })
+      .limit(limit)
+      .skip(skip);
+  },
+  findOrderById: async (id) => {
+    return Order.findOne({
+      _id: id,
+    });
+  },
   // getProductsList: (limit, skip, filter) => {
   //   try {
   //     const { sort, ...filterFind } = filter;
