@@ -42,6 +42,7 @@ module.exports = {
   getOrderUser: async (req, res) => {
     const userId = req.user._id;
     const { page, limit = 20, ...filter } = req.query;
+
     const {
       order_id: orderId,
       price_from: priceFrom,
@@ -51,11 +52,18 @@ module.exports = {
     } = filter;
     const skip = (page - 1) * limit;
     const filterQuery = {};
-    orderId && (filterQuery.orderId = orderId);
-    priceFrom && (filterQuery.price_promotion = { $gte: priceFrom });
-    priceTo && (filterQuery.price_promotion = { ...filterQuery.price_promotion, $lte: priceTo });
-    // dateFrom && (filterQuery.createdAt = { ...filterQuery.price_promotion, $lte: priceTo });
+    orderId && (filterQuery._id = orderId);
+    priceFrom &&
+      (filterQuery.totals = { $elemMatch: { title: "Thành tiền", value: { $gte: +priceFrom } } });
+    priceTo &&
+      (filterQuery.totals = {
+        ...filterQuery.totals,
+        $elemMatch: { title: "Thành tiền", value: { $lte: +priceTo } },
+      });
+    dateFrom && (filterQuery.createdAt = { $gte: dateFrom });
+    dateTo && (filterQuery.createdAt = { ...filterQuery.createdAt, $lte: dateTo });
 
+    console.log("[filterQuery]", filterQuery);
     const userInfo = await userModel.findUserById(userId);
     const orderList = await orderModel.getOrderUser(userInfo.email, limit, skip, filterQuery);
     res.status(200).json(orderList);
@@ -104,8 +112,8 @@ module.exports = {
 
       if (user) {
         const membershipInfo = getMemberShipInfo(user.membership);
-        const discountMembership = (totalCart * (membershipInfo?.discount / 100)) || 0;
-        
+        const discountMembership = totalCart * (membershipInfo?.discount / 100) || 0;
+
         if (membershipInfo) {
           totals.push({
             title: `Thưởng tiền khách (${membershipInfo.text}) - Hoàn lại vào số dư `,
@@ -128,14 +136,25 @@ module.exports = {
           const result = {
             entries,
             email: newOrder.email,
-            status: 0,
+            status: 1,
             totals,
           };
 
           const response = await orderModel.addOrder(result);
           res.status(200).json(response);
         } else {
-          res.status(400).json("Không đủ số dư để thanh toán");
+          const result = {
+            entries,
+            email: newOrder.email,
+            status: 0,
+            totals,
+          };
+
+          const response = await orderModel.addOrder(result);
+          res.status(400).json({
+            response,
+            message: "Không đủ số dư để thanh toán",
+          });
         }
       } else {
         console.log("Không có account");

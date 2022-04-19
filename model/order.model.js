@@ -6,12 +6,15 @@ module.exports = {
     return Order.find();
   },
   getOrderUser: async (email, limit, skip, filterQuery) => {
-    return Order.find({
+    const query = Order.find({
       ...filterQuery,
       email,
     })
       .limit(limit)
       .skip(skip);
+
+    console.log("[GET FILTER]", query.getFilter())
+    return query;
   },
   findOrderById: async (id) => {
     return Order.findOne({
