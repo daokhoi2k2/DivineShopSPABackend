@@ -8,6 +8,7 @@ const categoryController = require("../controller/category.controller");
 const productController = require("../controller/product.controller");
 const locationController = require("../controller/location.controller");
 const orderController = require("../controller/order.controller");
+const tagController = require("../controller/tag.controller");
 const middlewareController = require("../controller/middleware.controller");
 
 router.get("/", controller.index);
@@ -54,5 +55,10 @@ router
   .get("/order", orderController.getAllOrders)
   .get("/order/:id", orderController.getOrderById)
   .post("/order", orderController.addOrder)
+
+// Tag
+router
+  .get("/tag", tagController.getAllTags)
+  .post("/tag", tagController.addTag)
 
 module.exports = router;
