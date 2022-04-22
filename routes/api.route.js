@@ -59,6 +59,7 @@ router
 // Tag
 router
   .get("/tag", tagController.getAllTags)
-  .post("/tag", tagController.addTag)
+  .post("/tag", middlewareController.verifyTokenAndAdminAuth, tagController.addTag)
+  .patch("/tag", middlewareController.verifyTokenAndAdminAuth, tagController.updateTag)
 
 module.exports = router;

@@ -89,7 +89,6 @@ module.exports = {
   updateProduct: async (req, res) => {
     const thumb_nail = req.file;
     const { _id, ...data } = req.body;
-
     try {
       if (thumb_nail) {
         const newProduct = {

@@ -6,5 +6,8 @@ module.exports = {
     },
     addTag: async (newTag) => {
         return Tag.create(newTag);
+    },
+    updateTag: async (_id, newTag) => {
+        return Tag.findByIdAndUpdate(_id, newTag)
     }
 }
