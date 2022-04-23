@@ -8,13 +8,15 @@ module.exports = {
   getProductsList: async (req, res) => {
     try {
       const { page, limit, ...filter } = req.query;
-      const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort } = filter;
+      const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort, q } = filter;
+      const regexQueryPattern = new RegExp(`${q}`);
 
       const skip = (page - 1) * limit;
       const filterQuery = {};
       categoryId && (filterQuery.categoryId = categoryId);
       priceFrom && (filterQuery.price_promotion = { $gte: priceFrom });
       priceTo && (filterQuery.price_promotion = { ...filterQuery.price_promotion, $lte: priceTo });
+      q && (filterQuery.name = {$regex: regexQueryPattern, $options: 'gi'})
 
       sort &&
         (() => {

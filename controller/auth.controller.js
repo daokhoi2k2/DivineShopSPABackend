@@ -84,9 +84,9 @@ const authController = {
       const newRefreshToken = authController.generateRefreshToken(user);
 
       res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true, // không thể dùng document.cookie
+        // httpOnly: true, // không thể dùng document.cookie
         // path: "/",
-        // sameSite: "strict",
+        sameSite: "none", // lỗi khi upload vì ở 2 site khác nhau
         // secure: false, // cookie chỉ được gửi qua https
       });
 
