@@ -4,11 +4,24 @@ const bcrypt = require("bcrypt");
 module.exports = {
   getAllUser: async (req, res) => {
     try {
-      console.log("[USER]", req.user);
       const users = await userModel.getAllUsers();
       res.status(200).json(users);
     } catch (err) {
       res.status(500).json(err);
+    }
+  },
+  changeAvatar: async (req, res) => {
+    try {
+      const avatar = req.file;
+      const _id = req.user._id;
+
+      const response = await userModel.findAndupdateById(_id, {
+        avatar: avatar.filename,
+      });
+
+      res.status(200).json(response);
+    } catch (err) {
+      res.status(404).json(err);
     }
   },
   register: async (req, res) => {
@@ -27,7 +40,7 @@ module.exports = {
 
       res.status(200).json({
         msg: "created successfully",
-        // accountInfo: 
+        // accountInfo:
       });
     } catch (err) {
       res.status(500).json(err);
@@ -55,8 +68,6 @@ module.exports = {
       const response = await userModel.findAndupdateById(id, data);
 
       res.status(200).json(response);
-    } catch (err) {
-
-    }
-  }
+    } catch (err) {}
+  },
 };

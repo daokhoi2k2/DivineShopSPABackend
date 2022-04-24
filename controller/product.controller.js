@@ -1,4 +1,5 @@
 const productModel = require("../model/product.model");
+const tagModel = require("../model/tag.model");
 module.exports = {
   getAllProducts: async (req, res) => {
     const response = await productModel.getAllProducts();
@@ -9,14 +10,17 @@ module.exports = {
     try {
       const { page, limit, ...filter } = req.query;
       const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort, q } = filter;
-      const regexQueryPattern = new RegExp(`${q}`);
+      const regexQueryPattern = new RegExp(`${q}`, "gi");
+      const tagInfo = await tagModel.getTagByText(regexQueryPattern);
 
       const skip = (page - 1) * limit;
       const filterQuery = {};
       categoryId && (filterQuery.categoryId = categoryId);
       priceFrom && (filterQuery.price_promotion = { $gte: priceFrom });
       priceTo && (filterQuery.price_promotion = { ...filterQuery.price_promotion, $lte: priceTo });
-      q && (filterQuery.name = {$regex: regexQueryPattern, $options: 'gi'})
+
+      q && (filterQuery.$or = [{ name: { $regex: regexQueryPattern } }]);
+      q && tagInfo?._id && filterQuery.$or.push({ tags: tagInfo._id.toString() });
 
       sort &&
         (() => {
@@ -53,6 +57,22 @@ module.exports = {
       res.status(400).json(err);
     }
   },
+  getListAutoComplete: async (req, res) => {
+    try {
+      const { q } = req.query;
+      const regexQueryPattern = new RegExp(`${q}`, "gi");
+      if(q.length) {
+        const response = await productModel.getListAutoComplete(regexQueryPattern);
+        res.status(200).json(response);
+      } else {
+        const response = await productModel.getProducsMostQuantity();
+        res.status(200).json(response);
+      }
+
+    } catch (err) {
+      res.status(400).json(err);
+    }
+  },
   getProductFilter: async (req, res) => {
     res.send("ccc");
   },
@@ -60,8 +80,12 @@ module.exports = {
     try {
       const hash_name = req.params.hash_name;
       const response = await productModel.getProductByHashName(hash_name);
-
-      res.status(200).json(response);
+ 
+      if(response) {
+        res.status(200).json(response);
+      } else {
+        res.status(404).json("Not found")
+      }
     } catch (err) {
       res.status(400).json(err);
     }

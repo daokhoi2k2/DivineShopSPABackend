@@ -63,7 +63,6 @@ module.exports = {
     dateFrom && (filterQuery.createdAt = { $gte: dateFrom });
     dateTo && (filterQuery.createdAt = { ...filterQuery.createdAt, $lte: dateTo });
 
-    console.log("[filterQuery]", filterQuery);
     const userInfo = await userModel.findUserById(userId);
     const orderList = await orderModel.getOrderUser(userInfo.email, limit, skip, filterQuery);
     res.status(200).json(orderList);
@@ -83,9 +82,12 @@ module.exports = {
       // add quantity to product object in entries
       const entries = productsInfo.map((item, index) => {
         let quantity = 0;
-        if (item._id.toString() === newOrder.entries[index].productId) {
-          quantity = newOrder.entries[index].quantity;
-        }
+
+        // Get quantity from req body
+        quantity = newOrder.entries.find((orderItem) => {
+          return orderItem.productId === item._id.toString();
+        }).quantity;
+
         return {
           product: item,
           quantity,
