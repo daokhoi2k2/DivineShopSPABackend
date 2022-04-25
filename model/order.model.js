@@ -12,8 +12,7 @@ module.exports = {
     })
       .limit(limit)
       .skip(skip);
-
-    console.log("[GET FILTER]", query.getFilter())
+      
     return query;
   },
   findOrderById: async (id) => {

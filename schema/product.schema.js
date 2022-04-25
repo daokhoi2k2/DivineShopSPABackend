@@ -37,12 +37,17 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    tags: {
+      // type: [{type: mongoose.Schema.Types.ObjectId, ref: 'tag'}],
+      type: [{type: String, ref: 'tag'}],
+    },
     categoryId: {
       type: String,
       ref: "category",
     },
     quantity_sold: {
       type: Number,
+      require: true,
       default: 0,
     },
   },

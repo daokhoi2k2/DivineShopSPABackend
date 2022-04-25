@@ -1,4 +1,5 @@
 const productModel = require("../model/product.model");
+const tagModel = require("../model/tag.model");
 module.exports = {
   getAllProducts: async (req, res) => {
     const response = await productModel.getAllProducts();
@@ -7,14 +8,19 @@ module.exports = {
   },
   getProductsList: async (req, res) => {
     try {
-      const { page, limit, ...filter } = req.query;
-      const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort } = filter;
+      const { page = 1, limit = 8, slug, ...filter } = req.query;
+      const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort, q } = filter;
+      const regexQueryPattern = new RegExp(`${q}`, "gi");
+      const tagInfo = await tagModel.getTagByText(regexQueryPattern);
 
       const skip = (page - 1) * limit;
       const filterQuery = {};
       categoryId && (filterQuery.categoryId = categoryId);
       priceFrom && (filterQuery.price_promotion = { $gte: priceFrom });
       priceTo && (filterQuery.price_promotion = { ...filterQuery.price_promotion, $lte: priceTo });
+
+      q && (filterQuery.$or = [{ name: { $regex: regexQueryPattern } }]);
+      q && tagInfo?._id && filterQuery.$or.push({ tags: tagInfo._id.toString() });
 
       sort &&
         (() => {
@@ -42,12 +48,50 @@ module.exports = {
               break;
           }
         })();
+      
+      slug && (() => {
+        switch(slug) {
+          case 'featured': 
+            filterQuery.quantity_sold = { $gte: 1000 }
+            filterQuery.sort = { quantity_sold: -1 };
+            break;
+          case 'wallet': 
+            filterQuery.categoryId = '6248711b3fd18664315ec4f6'
+            break;
+        }
+      })()
+
 
       const response = await productModel.getProductsList(limit, skip, filterQuery);
+
+      // Catch if have slug in query return other response
+      if(slug) {
+
+          return res.status(200).json({
+              list: response,
+              isMore: response.length >= 8,
+          })
+      }
 
       res.status(200).json(response);
     } catch (err) {
       console.log(err);
+      res.status(400).json(err);
+    }
+  },
+  getListAutoComplete: async (req, res) => {
+    try {
+      const { q } = req.query;
+      const regexQueryPattern = new RegExp(`${q}`, "gi");
+      if(q.length) {
+        const response = await productModel.getListAutoComplete(regexQueryPattern);
+        res.status(200).json(response);
+      } else {
+        const response = await productModel.getProducsMostQuantity();
+        res.status(200).json(response);
+      }
+
+    } catch (err) {
       res.status(400).json(err);
     }
   },
@@ -58,8 +102,12 @@ module.exports = {
     try {
       const hash_name = req.params.hash_name;
       const response = await productModel.getProductByHashName(hash_name);
-
-      res.status(200).json(response);
+ 
+      if(response) {
+        res.status(200).json(response);
+      } else {
+        res.status(404).json("Not found")
+      }
     } catch (err) {
       res.status(400).json(err);
     }
@@ -89,7 +137,6 @@ module.exports = {
   updateProduct: async (req, res) => {
     const thumb_nail = req.file;
     const { _id, ...data } = req.body;
-
     try {
       if (thumb_nail) {
         const newProduct = {
