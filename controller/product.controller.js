@@ -8,7 +8,7 @@ module.exports = {
   },
   getProductsList: async (req, res) => {
     try {
-      const { page, limit, ...filter } = req.query;
+      const { page = 1, limit = 8, slug, ...filter } = req.query;
       const { category_id: categoryId, price_from: priceFrom, price_to: priceTo, sort, q } = filter;
       const regexQueryPattern = new RegExp(`${q}`, "gi");
       const tagInfo = await tagModel.getTagByText(regexQueryPattern);
@@ -48,8 +48,30 @@ module.exports = {
               break;
           }
         })();
+      
+      slug && (() => {
+        switch(slug) {
+          case 'featured': 
+            filterQuery.quantity_sold = { $gte: 1000 }
+            filterQuery.sort = { quantity_sold: -1 };
+            break;
+          case 'wallet': 
+            filterQuery.categoryId = '6248711b3fd18664315ec4f6'
+            break;
+        }
+      })()
+
 
       const response = await productModel.getProductsList(limit, skip, filterQuery);
+
+      // Catch if have slug in query return other response
+      if(slug) {
+
+          return res.status(200).json({
+              list: response,
+              isMore: response.length >= 8,
+          })
+      }
 
       res.status(200).json(response);
     } catch (err) {
