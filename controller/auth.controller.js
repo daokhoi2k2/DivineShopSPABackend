@@ -54,7 +54,7 @@ const authController = {
           // httpOnly: true, // không thể dùng document.cookie
           // path: "/",
           sameSite: "None",
-          secure: false, // cookie chỉ được gửi qua https
+          secure: true, // cookie chỉ được gửi qua https
         });
         
         // Remove password inside the user object
