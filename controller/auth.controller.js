@@ -53,7 +53,7 @@ const authController = {
         res.cookie("refreshToken", refreshToken, {
           // httpOnly: true, // không thể dùng document.cookie
           // path: "/",
-          // sameSite: "strict",
+          sameSite: "None",
           // secure: false, // cookie chỉ được gửi qua https
         });
         
@@ -86,7 +86,7 @@ const authController = {
       res.cookie("refreshToken", newRefreshToken, {
         // httpOnly: true, // không thể dùng document.cookie
         // path: "/",
-        sameSite: "none", // lỗi khi upload vì ở 2 site khác nhau
+        sameSite: "None", // lỗi khi upload vì ở 2 site khác nhau
         // secure: false, // cookie chỉ được gửi qua https
       });
 
