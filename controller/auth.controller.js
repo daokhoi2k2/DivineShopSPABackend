@@ -87,7 +87,7 @@ const authController = {
         // httpOnly: true, // không thể dùng document.cookie
         // path: "/",
         sameSite: "None", // lỗi khi upload vì ở 2 site khác nhau
-        secure: false, // cookie chỉ được gửi qua https
+        secure: true, // cookie chỉ được gửi qua https
       });
 
       return res.status(200).json({ accessToken: newAccessToken });
